@@ -10,41 +10,40 @@ namespace Hangman_Version_2
     {
         static void Main(string[] args)
         {
-            string guess; 
-            string wordToGuess = GetRandomWord();
-            string wholeWord;
-
+            string guess;
+            string wordToGuess = GetRandomWord();           
 
             Console.WriteLine(wordToGuess);
             guess = InputGuess("Please guess a letter or a word"); // Call method to get user input
-            wholeWord = GuessWholeWord("You guessed a word!"); //Method if user enters a word rather than a single letter  
+            GuessWholeWord(guess, wordToGuess); //Method if user enters a word rather than a single letter. Written like this, calls the method (i.e runs the code within the method.
         }
 
-        static string InputGuess (string textToPrint) //Method for user input
-        {           
-            Console.WriteLine(textToPrint);
-            string guess = Console.ReadLine();
-            return guess;            
-        }
+        static string GetRandomWord() //METHOD: Random word generator
+        {
+            Random randomWord = new Random();
 
-        static void StoreGuesses (string )
-        {
-            string userGuesses;
-            List<string> userGuesses = new List<string>();
-            Console.WriteLine("You have guesses the following: " + guess);
-        }
-                
-        static void GuessWholeWord(string guess, string wordToGuess, string textComment)       
-        {
-            if (guess == wordToGuess)            
+            string[] arrayOfWords = { "house", "robot", "garden", "children", "volvo", "nerd", "elephant", "school", "table" };
+            string wordToGuess;
             {
-                Console.WriteLine(textComment);
-                Console.WriteLine("\nBoo hoo. Wrong! Better luck next time");                
+                int index = randomWord.Next(arrayOfWords.Length - 1);
+                wordToGuess = arrayOfWords[index].ToString();
+            }
+            return wordToGuess;
+        }
+
+        //method for is Bool methold. Is it right, finish, correct, right letter, word
+
+        static void GuessWholeWord(string guess, string wordToGuess) // Defination. Need to pass two strings above
+        {
+            if (guess == wordToGuess)
+            {
+                
+                Console.WriteLine("\nBoo hoo. Wrong! Better luck next time");
             }
             else
             {
                 Console.WriteLine("\nAmazing job! Well done! You guessed the correct word.");
-            }                
+            }
         }
 
         static void GuessALetter(string guess, string wordToGuess)
@@ -54,6 +53,27 @@ namespace Hangman_Version_2
             // if wrong
 
         }
+
+        static string InputGuess(string textToPrint) //Method for user input
+        {
+            Console.WriteLine(textToPrint);
+            string guess = Console.ReadLine();
+            return guess;
+        }
+
+        static void StoreGuesses(string guess)
+        {
+            string userGuesses;
+            List<string> userGuesses = new List<string>();
+            Console.WriteLine("You have guesses the following: " + guess);
+        }
+
+        static void DisplayWord;
+        {
+        
+        }
+                
+        
 
 
         /*
@@ -97,17 +117,6 @@ namespace Hangman_Version_2
         //METHOD: RETRY
 
 
-        static string GetRandomWord() //METHOD: Random word generator
-        {
-            Random randomWord = new Random();
-
-            string[] arrayOfWords = { "house", "robot", "garden", "children", "volvo", "nerd", "elephant", "school", "table" };
-            string wordToGuess;
-            {
-                int index = randomWord.Next(arrayOfWords.Length - 1);
-                wordToGuess = arrayOfWords[index].ToString();
-            }
-            return wordToGuess;
-        }
+        
     }
 }
