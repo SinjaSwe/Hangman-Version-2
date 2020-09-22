@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Reflection.Emit;
 using System.Reflection.PortableExecutable;
 using System.Text;
@@ -46,15 +47,17 @@ namespace Hangman_Version_2
             }
         }
 
-        static void PlayHangman()
+        static void PlayHangman(int guessesAvailable, int noOfGuesses, string wordToGuess)
         {
             string guess;           
             int remainingTries;
-            remainingTries = (guessesAvailable - noOfGuesses);     
+            remainingTries = guessesAvailable - noOfGuesses;
+            Console.WriteLine(guessesAvailable);
+            Console.WriteLine(noOfGuesses);
             
-
             Console.WriteLine(wordToGuess);
             guess = InputGuess("Please guess a letter or a word"); // Call method to get user input and returns the guess value
+            
             
             while (remainingTries < guessesAvailable && !won)
                      
@@ -83,6 +86,37 @@ namespace Hangman_Version_2
             return wordToGuess;
         }
 
+        static void HideWord(string wordToGuess, string guess)
+        {
+            char guessToChar = Convert.ToChar(guess); 
+            char[] secretWord = wordToGuess.ToCharArray();
+
+            for (int i = 0; i < secretWord.Length; i++)
+            {
+                secretWord[i] = '_';
+            }            
+        }
+
+        static void DisplayWord(char guessToChar, string secretWord) //https://stackoverflow.com/questions/20577263/c-sharp-hangman-manipulating-string
+        {
+            int count = 0;
+
+            for (int i = 0; i < secretWord.Length; i++)
+            { 
+            if (secretWord[i] == guessToChar)
+                {
+                    count++;
+                    secretWord[i] = guessToChar; //TO FIX
+
+                    for (int j = 0; j < secretWord.Length; j++)
+                    {
+                        Console.WriteLine(secretWord[j] + " "); 
+                    }    
+                }
+            }            
+        }
+         
+        
         static void StoreGuesses(string guess)
         {
             List<char> guessedLetters = new List<char>(); 
@@ -123,8 +157,8 @@ namespace Hangman_Version_2
             Console.WriteLine(textToPrint);
             string guess = Console.ReadLine();
             return guess;
-        }        
-        
+        }
+                
         static void NoOfGuesses(string wordToGuess, int remainingTries)        {
             
             if (remainingTries <= 0)
@@ -178,12 +212,13 @@ namespace Hangman_Version_2
 
         }
 
-        /*static void DisplayWord;
+        //REPLAY
+        /*static void RightCharArray()
         {
-        
+            guessedOne = true;
+            GuessedChars.Add(CurrentWord[i]);
+        https://code.sololearn.com/c3A1jQq8x559/#cs
         }*/
-
-
 
 
         /*
