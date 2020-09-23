@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.Tracing;
 using System.Reflection.Emit;
 using System.Reflection.PortableExecutable;
@@ -11,13 +12,13 @@ namespace Hangman_Version_2
     class Program
     {
         public static int guessesAvailable = 10;
-        public static int noOfGuesses = 0; 
+        public static int noOfGuesses = 0;
         public static string wordToGuess = GetRandomWord();
         public static List<char> guessedLetters = new List<char>();
         public static bool won = false;
 
         static void Main(string[] args)
-        {            
+        {
             bool keepLooping = true;
 
             while (keepLooping)
@@ -46,37 +47,39 @@ namespace Hangman_Version_2
                 }
             }
         }
-
-        static void PlayHangman(int guessesAvailable, int noOfGuesses, string wordToGuess)
+        static void PlayHangman()
         {
-            string guess;           
+            string guess;
             int remainingTries;
+            string wordToDisplay = DisplayWord(guessedLetters, wordToGuess);
             remainingTries = guessesAvailable - noOfGuesses;
             Console.WriteLine(guessesAvailable);
             Console.WriteLine(noOfGuesses);
+            Console.WriteLine(wordToGuess);//Only show when testing
+            Console.WriteLine(wordToDisplay);            
+
+            guess = InputGuess("\nPlease guess a letter or a word"); // Call method to get user input and returns the guess value        
             
-            Console.WriteLine(wordToGuess);
-            guess = InputGuess("Please guess a letter or a word"); // Call method to get user input and returns the guess value
-            
-            
+            //QUESTION FOR PER. WHY ISNT MY LOOP PROPERLY WORKING?
+
             while (remainingTries < guessesAvailable && !won)
-                     
-                if (guess.Length > 1)
+            {
+                 if (guess.Length > 1)
                 {
                     GuessWholeWord(guess, wordToGuess); //Method if user enters a word rather than a single letter. Written like this, calls the method (i.e runs the code within the method.
-                    noOfGuesses++; 
+                    noOfGuesses++;
                 }
                 else
                 {
-                    GuessALetter(guess, wordToGuess, guessedLetters);  // Method if user enters a single letter
+                    GuessALetter(guess, guessedLetters, wordToGuess, wordToDisplay);  // Method if user enters a single letter
                     noOfGuesses++;
                 }
+            }
         }
 
         static string GetRandomWord() //METHOD: Random word generator
         {
             Random randomWord = new Random();
-
             string[] arrayOfWords = { "house", "robot", "garden", "children", "volvo", "nerd", "elephant", "school", "table" };
             string wordToGuess;
             {
@@ -85,57 +88,60 @@ namespace Hangman_Version_2
             }
             return wordToGuess;
         }
-
-        static void HideWord(string wordToGuess, string guess)
+        static string DisplayWord(List<char> guessedLetters, string wordToGuess)    //Method to display hidden word      
         {
-            char guessToChar = Convert.ToChar(guess); 
-            char[] secretWord = wordToGuess.ToCharArray();
-
-            for (int i = 0; i < secretWord.Length; i++)
+            string displayWord = " "; // empty string to fill 
+            if (guessedLetters.Count == 0)
             {
-                secretWord[i] = '_';
-            }            
-        }
-
-        static void DisplayWord(char guessToChar, string secretWord) //https://stackoverflow.com/questions/20577263/c-sharp-hangman-manipulating-string
-        {
-            int count = 0;
-
-            for (int i = 0; i < secretWord.Length; i++)
-            { 
-            if (secretWord[i] == guessToChar)
+                foreach (char letter in wordToGuess)
                 {
-                    count++;
-                    secretWord[i] = guessToChar; //TO FIX
-
-                    for (int j = 0; j < secretWord.Length; j++)
-                    {
-                        Console.WriteLine(secretWord[j] + " "); 
-                    }    
+                    displayWord += "_ ";
                 }
-            }            
-        }
-         
-        
+                return displayWord;
+            }
+            foreach (char letter in wordToGuess)
+            {
+                bool correctTry = false;
+                foreach (char key in guessedLetters)
+                {
+                    if (key == letter)
+                    {
+                        displayWord += key + " ";
+                        correctTry = true;
+                        break;
+                    }
+                    else
+                    {
+                        correctTry = false;
+                    }
+                }
+                if (correctTry == false)
+                {
+                    displayWord += "_";
+                }
+            }
+            return displayWord;
+        }                       
         static void StoreGuesses(string guess)
         {
             List<char> guessedLetters = new List<char>(); 
             Console.WriteLine("You have guesses the following: " + guess);
         }
-
         static void GuessWholeWord(string guess, string wordToGuess) // Definition. Need to pass two strings above
-        {          
+        {
+            string wordToDisplay = DisplayWord(guessedLetters, wordToGuess); 
+
             if (guess == wordToGuess)
-            {                
-                Console.WriteLine("\nBoo hoo. Wrong! Better luck next time");                 
+            {
+                Console.WriteLine("\nAmazing job! Well done! You guessed the correct word."); //need to if else function here 
+                UserPlayAgain(); 
             }
             else
             {
-                Console.WriteLine("\nAmazing job! Well done! You guessed the correct word.");
+                Console.WriteLine("\nBoo hoo. Wrong! Better luck next time");
             }
         }
-
-        static void GuessALetter(string guess, string wordToGuess, List<char> guessedLetters)
+        static void GuessALetter(string guess, List<char> guessedLetters, string wordToGuess, string wordToDisplay)
         {
             if (guessedLetters.Contains(Convert.ToChar(guess)))
             {
@@ -144,22 +150,30 @@ namespace Hangman_Version_2
             }
             else if (wordToGuess.Contains(guess))
             {
-                Console.WriteLine($"\nWell done! You guessed correctly. The hidden word contains {guess}.");                
+                if (!wordToDisplay.Contains("_"))
+                {
+                    won = true;
+                    Console.WriteLine($"\nCongrats! You won! The hidden word was {wordToGuess}");
+                    UserPlayAgain();
+                }
+                else
+                {
+                    Console.WriteLine($"\nWell done! You guessed correctly. The hidden word contains {guess}.");                    
+                }                   
             }
             else
             {
                 Console.WriteLine($"\nBoo hoo! The letter {guess} does not exist in the word.");               
             }
         }
-
         static string InputGuess(string textToPrint) //Method for user input
         {
             Console.WriteLine(textToPrint);
             string guess = Console.ReadLine();
             return guess;
-        }
-                
-        static void NoOfGuesses(string wordToGuess, int remainingTries)        {
+        }                
+        static void NoOfGuesses(string wordToGuess, int remainingTries)        
+        {
             
             if (remainingTries <= 0)
             {
@@ -178,7 +192,6 @@ namespace Hangman_Version_2
             do
             {
                 Console.Write("Please enter a valid number; ");
-
                 try
                 {
                     number = double.Parse(Console.ReadLine());
@@ -211,8 +224,19 @@ namespace Hangman_Version_2
             return number;
 
         }
+        static void UserPlayAgain()
+        {
+            Console.WriteLine("Do you want to play again? Answer y or n to choose.");
+            string playAgain = Console.ReadLine();
+            if (playAgain == "n")
+            {
+                Environment.Exit(1);
+            }
+            Console.Clear();
+        }
 
-        //REPLAY
+
+    
         /*static void RightCharArray()
         {
             guessedOne = true;
@@ -238,24 +262,6 @@ namespace Hangman_Version_2
                 }
                 return false;
             }
-        }*/
-
-        //SWITCH: Play, Exit 
-        // COUNT DOWN OF TRIES
-        //METHOD: CHECK WHOLE WORD
-
-        /*static string GuessWholeWord (string wordToGuess, string guess)
-        
-
-        static int GuessOneLetter
-        {
-
-        }
-
-        */
-
-        //METHOD: COUNTER
-        //METHOD: DISPLAY WORD
-        //METHOD: RETRY        
+        }*/            
     }
 }
