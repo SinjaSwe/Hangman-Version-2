@@ -48,6 +48,7 @@ namespace Hangman_Version_2
                 }
             }
         }
+
         static void PlayHangman()
         {
             string guess;
@@ -55,14 +56,14 @@ namespace Hangman_Version_2
             remainingTries = guessesAvailable - noOfGuesses;
             Console.WriteLine(wordToGuess);//Only show when testing
 
+            List<char> guessedLettersList = new List<char>();
+            Console.WriteLine(String.Join(" ", guessedLettersList));
+
             while (remainingTries >= 1 && !won)
             {
                 remainingTries = guessesAvailable - noOfGuesses;
                 Console.WriteLine($"No. of guesses remaining: {remainingTries}");
                 
-                List<char> guessedLettersList = new List<char>();
-                 Console.WriteLine(string.Join("Guesses", guessedLettersList));
-
                 string wordToDisplay = DisplayWord(guessedLettersList, wordToGuess);
                 Console.WriteLine(wordToDisplay);
 
