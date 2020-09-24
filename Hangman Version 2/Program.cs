@@ -54,39 +54,74 @@ namespace Hangman_Version_2
             string guess;
             int remainingTries;
             remainingTries = guessesAvailable - noOfGuesses;
+
             Console.WriteLine(wordToGuess);//Only show when testing
 
             List<char> guessedLettersList = new List<char>();
-            foreach (int i in guessedLettersList)
+            foreach(char item in guessedLettersList)
             {
-                Console.WriteLine(i);
+                Console.WriteLine("Guessed" + item);
             }
 
-                while (remainingTries >= 1 && !won)
+
+            while (remainingTries >= 1 && !won)
             {
+                
                 remainingTries = guessesAvailable - noOfGuesses;
-                Console.WriteLine($"No. of guesses remaining: {remainingTries}");
+                Console.WriteLine($"No. of guesses remaining: {remainingTries}"); 
                 
                 string wordToDisplay = DisplayWord(guessedLettersList, wordToGuess);
-                Console.WriteLine(wordToDisplay);
+                Console.WriteLine(wordToDisplay);                
 
-                guess = InputGuess("\nPlease guess a letter or a word"); // Call method to get user input and returns the guess value                 
-
-                if (guess.Length > 1) 
+                if (!wordToDisplay.Contains("_"))
                 {
-                    GuessWholeWord(guess, wordToGuess); //Method if user enters a word rather than a single letter. Written like this, calls the method (i.e runs the code within the method.
-                    noOfGuesses++;
+                    won = false;
+                    Console.WriteLine($"\nCongrats! You won! The hidden word was {wordToGuess}");
+                    UserPlayAgain();
                 }
-                else
+
+                else if (remainingTries <= 0)
                 {
-                    char guessAsChar; 
-                    guessAsChar = Convert.ToChar(guess);
-                    GuessALetter(guessAsChar, guessedLettersList, wordToGuess, wordToDisplay);  // Method if user enters a single letter
-                    noOfGuesses++;
+                    Console.WriteLine($"You have no more guesses left. You lost! The word was {wordToGuess}");
+                    UserPlayAgain();
+                }
+
+                else
+                {               
+                    guess = InputGuess("\nPlease guess a letter or a word"); // Call method to get user input and returns the guess value   
+
+                    if (guess.Length > 1)
+                    {
+                        GuessWholeWord(guess, wordToGuess); //Method if user enters a word rather than a single letter. Written like this, calls the method (i.e runs the code within the method.
+                        noOfGuesses++;
+                    }
+                    else
+                    {
+                        char guessAsChar;
+                        guessAsChar = Convert.ToChar(guess);
+                        GuessALetter(won, guessAsChar, guessedLettersList, wordToGuess, wordToDisplay);  // Method if user enters a single letter
+                        noOfGuesses++;
+                    }
                 }
             }
-        }               
-
+        }
+        static string GetRandomWord() //METHOD: Random word generator
+        {
+            Random randomWord = new Random();
+            string[] arrayOfWords = { "house", "robot", "garden", "children", "volvo", "nerd", "elephant", "school", "table" };
+            string wordToGuess;
+            {
+                int index = randomWord.Next(arrayOfWords.Length);
+                wordToGuess = arrayOfWords[index].ToString();
+            }
+            return wordToGuess;
+        }
+        static string InputGuess(string textToPrint) //Method for user input
+        {
+            Console.WriteLine(textToPrint);
+            string guess = Console.ReadLine();
+            return guess;
+        }
         static void GuessWholeWord(string guess, string wordToGuess) // Definition. Need to pass two strings above
         {           
             if (guess == wordToGuess)
@@ -100,16 +135,25 @@ namespace Hangman_Version_2
                 return;
             }           
         }
-        static string GetRandomWord() //METHOD: Random word generator
+        static void GuessALetter(bool won, char guessAsChar, List<char> guessedLettersList, string wordToGuess, string wordToDisplay)
         {
-            Random randomWord = new Random();
-            string[] arrayOfWords = { "house", "robot", "garden", "children", "volvo", "nerd", "elephant", "school", "table" };
-            string wordToGuess;
+            if (guessedLettersList.Contains(guessAsChar))
             {
-                int index = randomWord.Next(arrayOfWords.Length - 1);
-                wordToGuess = arrayOfWords[index].ToString();
+                Console.WriteLine($"\nYou have already guessed {guessAsChar} dummy! Try a different letter.");
+                noOfGuesses--;
             }
-            return wordToGuess;
+            else if (wordToGuess.Contains(guessAsChar))            {
+                
+                Console.WriteLine($"\nWell done! You guessed correctly. The hidden word contains {guessAsChar}.");
+                guessedLettersList.Add(guessAsChar);
+                return;                
+            }
+            else
+            {
+                Console.WriteLine($"\nBoo hoo! The letter {guessAsChar} does not exist in the word.");
+                guessedLettersList.Add(guessAsChar);
+                return;
+            }
         }
         static string DisplayWord(List<char> guessedLettersList, string wordToGuess)    //Method to display hidden word      
         {
@@ -144,42 +188,8 @@ namespace Hangman_Version_2
                 }
             }
             return displayWord;
-        }                                      
-        static void GuessALetter(char guessAsChar, List<char> guessedLettersList, string wordToGuess, string wordToDisplay)
-        {
-            if (guessedLettersList.Contains(guessAsChar))
-            {
-                Console.WriteLine($"\nYou have already guessed {guessAsChar} dummy! Try a different letter.");
-                noOfGuesses--; 
-            }
-            else if (wordToGuess.Contains(guessAsChar))
-            {
-                if (!wordToDisplay.Contains("_"))
-                {
-                    won = true;
-                    Console.WriteLine($"\nCongrats! You won! The hidden word was {wordToGuess}");
-                    UserPlayAgain();
-                }
-                else
-                {
-                    Console.WriteLine($"\nWell done! You guessed correctly. The hidden word contains {guessAsChar}.");
-                    guessedLettersList.Add(guessAsChar);
-                    return;
-                }                   
-            }
-            else
-            {
-                Console.WriteLine($"\nBoo hoo! The letter {guessAsChar} does not exist in the word.");
-                guessedLettersList.Add(guessAsChar);
-                return;
-            }
-        }
-        static string InputGuess(string textToPrint) //Method for user input
-        {
-            Console.WriteLine(textToPrint);
-            string guess = Console.ReadLine();
-            return guess;
-        }
+        }                                  
+               
         
         static void NoOfGuesses(string wordToGuess, int remainingTries)        
         {
@@ -233,15 +243,22 @@ namespace Hangman_Version_2
             return number;
 
         }
-        static void UserPlayAgain()
+        static bool UserPlayAgain()
         {
+            bool letsReply = false;
+
             Console.WriteLine("Do you want to play again? Answer y or n to choose.");
             string playAgain = Console.ReadLine();
             if (playAgain == "n")
             {
                 Environment.Exit(1);
             }
-            Console.Clear();
+            else
+            {
+                letsReply = true;
+            }
+
+            return letsReply;
         }
 
 
