@@ -57,9 +57,12 @@ namespace Hangman_Version_2
             Console.WriteLine(wordToGuess);//Only show when testing
 
             List<char> guessedLettersList = new List<char>();
-            Console.WriteLine(String.Join(" ", guessedLettersList));
+            foreach (int i in guessedLettersList)
+            {
+                Console.WriteLine(i);
+            }
 
-            while (remainingTries >= 1 && !won)
+                while (remainingTries >= 1 && !won)
             {
                 remainingTries = guessesAvailable - noOfGuesses;
                 Console.WriteLine($"No. of guesses remaining: {remainingTries}");
