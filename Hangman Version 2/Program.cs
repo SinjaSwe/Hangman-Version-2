@@ -76,11 +76,7 @@ namespace Hangman_Version_2
                        
             // LIST TO CAPTURE GUESSED LETTERS
             List<char> guessedLettersList = new List<char>();
-            foreach(char item in guessedLettersList)
-            {
-                Console.WriteLine("Guessed" + item); 
-            }
-
+            
             // LOOP FOR PLAYING THE GAME
             while (remainingTries >= 1 && !won)
             {                
@@ -136,8 +132,7 @@ namespace Hangman_Version_2
             }
             return wordToGuess;
         }
-        
-        
+                
         static string InputGuess(string textToPrint) //Method for user input
         {
             Console.WriteLine(textToPrint);
