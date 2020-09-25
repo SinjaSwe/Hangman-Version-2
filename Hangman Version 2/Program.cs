@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Tracing;
+using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection.Metadata.Ecma335;
 using System.Reflection.PortableExecutable;
@@ -12,14 +13,20 @@ namespace Hangman_Version_2
 {
     class Program
     {
-        public static int guessesAvailable = 10;
-        public static int noOfGuesses = 0;
-        public static string wordToGuess = GetRandomWord();
-        public static List<char> guessedLetters = new List<char>();
-        public static bool won = false;
+        //static int guessesAvailable;
+        static int noOfGuesses = 0;
+        static string wordToGuess = GetRandomWord();
+        static List<char> guessedLetters = new List<char>();
+        static bool won = false;
 
         static void Main(string[] args)
+        {            
+            StartGame();
+        }
+        static void StartGame()
         {
+            wordToGuess = GetRandomWord();
+                        
             bool keepLooping = true;
 
             while (keepLooping)
@@ -30,7 +37,7 @@ namespace Hangman_Version_2
                 Console.WriteLine("2: Exit");
 
                 double selection = AskForNumber();
-
+                                
                 switch (selection)
                 {
                     case 1:
@@ -48,27 +55,37 @@ namespace Hangman_Version_2
                 }
             }
         }
-
         static void PlayHangman()
         {
+            Console.WriteLine(" ________    ");
+            Console.WriteLine(" |/   |      ");
+            Console.WriteLine(" |   (_)     ");
+            Console.WriteLine(" |   /|-     ");
+            Console.WriteLine(" |    |      ");
+            Console.WriteLine(" |   / }     ");
+            Console.WriteLine(" |           ");
+            Console.WriteLine(" |___        ");
+            
             string guess;
+            int guessesAvailable = 10;
+            int noOfGuesses = 0;
             int remainingTries;
             remainingTries = guessesAvailable - noOfGuesses;
 
             Console.WriteLine(wordToGuess);//Only show when testing
-
+                       
+            // LIST TO CAPTURE GUESSED LETTERS
             List<char> guessedLettersList = new List<char>();
             foreach(char item in guessedLettersList)
             {
-                Console.WriteLine("Guessed" + item);
+                Console.WriteLine("Guessed" + item); 
             }
 
-
+            // LOOP FOR PLAYING THE GAME
             while (remainingTries >= 1 && !won)
-            {
-                
+            {                
                 remainingTries = guessesAvailable - noOfGuesses;
-                Console.WriteLine($"No. of guesses remaining: {remainingTries}"); 
+                Console.WriteLine($"No. of guesses remaining: {remainingTries}");                
                 
                 string wordToDisplay = DisplayWord(guessedLettersList, wordToGuess);
                 Console.WriteLine(wordToDisplay);                
@@ -79,16 +96,14 @@ namespace Hangman_Version_2
                     Console.WriteLine($"\nCongrats! You won! The hidden word was {wordToGuess}");
                     UserPlayAgain();
                 }
-
                 else if (remainingTries <= 0)
                 {
                     Console.WriteLine($"You have no more guesses left. You lost! The word was {wordToGuess}");
                     UserPlayAgain();
                 }
-
                 else
                 {               
-                    guess = InputGuess("\nPlease guess a letter or a word"); // Call method to get user input and returns the guess value   
+                    guess = InputGuess("\nPlease guess a letter or a word\n"); // Call method to get user input and returns the guess value   
 
                     if (guess.Length > 1)
                     {
@@ -99,8 +114,13 @@ namespace Hangman_Version_2
                     {
                         char guessAsChar;
                         guessAsChar = Convert.ToChar(guess);
-                        GuessALetter(won, guessAsChar, guessedLettersList, wordToGuess, wordToDisplay);  // Method if user enters a single letter
-                        noOfGuesses++;
+                        noOfGuesses++;                        
+                        GuessALetter(guessAsChar, guessedLettersList, wordToGuess);  // Method if user enters a single letter
+                        /*if (guessedLettersList.Contains(guessAsChar))
+                        {
+                            noOfGuesses--; //THIS DOES NOT WORK
+                        }
+                        */
                     }
                 }
             }
@@ -116,6 +136,8 @@ namespace Hangman_Version_2
             }
             return wordToGuess;
         }
+        
+        
         static string InputGuess(string textToPrint) //Method for user input
         {
             Console.WriteLine(textToPrint);
@@ -135,23 +157,33 @@ namespace Hangman_Version_2
                 return;
             }           
         }
-        static void GuessALetter(bool won, char guessAsChar, List<char> guessedLettersList, string wordToGuess, string wordToDisplay)
+        
+        static void GuessALetter(char guessAsChar, List<char> guessedLettersList, string wordToGuess)
         {
             if (guessedLettersList.Contains(guessAsChar))
             {
+                noOfGuesses--; 
                 Console.WriteLine($"\nYou have already guessed {guessAsChar} dummy! Try a different letter.");
-                noOfGuesses--;
+                return;
             }
-            else if (wordToGuess.Contains(guessAsChar))            {
-                
+            else if (wordToGuess.Contains(guessAsChar))            
+            {                
                 Console.WriteLine($"\nWell done! You guessed correctly. The hidden word contains {guessAsChar}.");
                 guessedLettersList.Add(guessAsChar);
+                Console.WriteLine("");
+                //MISSING CHAR ARRAY CONTAINING GUESSES                
+                //char [] rightLetters = new char [11];               
+               
                 return;                
             }
             else
             {
                 Console.WriteLine($"\nBoo hoo! The letter {guessAsChar} does not exist in the word.");
                 guessedLettersList.Add(guessAsChar);
+                StringBuilder wrongGuesses = new StringBuilder();
+                wrongGuesses.Append(guessAsChar);
+                Console.WriteLine("You have guessed the following wrong letters: {0}", wrongGuesses, " ");
+
                 return;
             }
         }
@@ -188,20 +220,7 @@ namespace Hangman_Version_2
                 }
             }
             return displayWord;
-        }                                  
-               
-        
-        static void NoOfGuesses(string wordToGuess, int remainingTries)        
-        {
-            
-            if (remainingTries <= 0)
-            {
-                Console.WriteLine($"You have no more guesses left. You lost! The word was {wordToGuess}");
-            }
-
-            else
-                Console.WriteLine($"Guess again. You have {remainingTries} guesses left.");
-        }
+        }                                                        
         static double AskForNumber()
         {
             bool notNumber = false;
@@ -243,51 +262,49 @@ namespace Hangman_Version_2
             return number;
 
         }
-        static bool UserPlayAgain()
+        static void UserPlayAgain()
         {
-            bool letsReply = false;
+            Console.WriteLine("\nReturn to start screen? Answer y or n to choose."); 
+            char answer = Console.ReadKey().KeyChar;
 
-            Console.WriteLine("Do you want to play again? Answer y or n to choose.");
-            string playAgain = Console.ReadLine();
-            if (playAgain == "n")
+            if (Char.ToLower(answer) == 'y')
             {
-                Environment.Exit(1);
+                StartGame();
+            }   
+        }
+        static int CountGuesses(string guess, char guessAsChar, List<char> guessedLettersList, string wordToGuess)
+        {
+            int numberOfGuesses = 0;
+
+
+            if (guessedLettersList.Contains(guessAsChar))
+            {
+                //nochange
+            }
+            else if (wordToGuess.Contains(guessAsChar))
+            {
+                numberOfGuesses++;
             }
             else
             {
-                letsReply = true;
+                numberOfGuesses++;
             }
 
-            return letsReply;
+            return numberOfGuesses;
         }
 
+        /*
 
-    
-        /*static void RightCharArray()
-        {
-            guessedOne = true;
-            GuessedChars.Add(CurrentWord[i]);
-        https://code.sololearn.com/c3A1jQq8x559/#cs
-        }*/
+    static void RightCharArray()
+    {
+        guessedOne = true;
+        GuessedChars.Add(CurrentWord[i]);
+    https://code.sololearn.com/c3A1jQq8x559/#cs
+    }*/
 
 
         /*
-         static bool CheckForLetter(StringBuilder stringBuilder, char letter)//METHOD: StringBuilder
-        {
-            string text = stringBuilder.ToString();
 
-            if (String.IsNullOrEmpty(text))
-            {
-                if (text.IndexOf(letter) == -1)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-                return false;
-            }
-        }*/            
+        }*/
     }
 }
